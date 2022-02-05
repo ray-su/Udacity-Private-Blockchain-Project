@@ -38,20 +38,21 @@ class Block {
     validate() {
         let self = this;
         return new Promise((resolve, reject) => {
-            // Save in auxiliary variable the current block hash
-            const { hash } = self
+            const { hash, height, previousBlockHash } = self
+            // Base case: Genesis block
+            if (height === 0 && !previousBlockHash) {
+                return resolve(true)
+            }
             // Recalculate the hash of the Block
-            const recalc = SHA256(JSON.stringify(self))
+            const recalc = SHA256(JSON.stringify({ ...self, hash: null })).toString()
             // Comparing if the hashes changed
             if (hash != recalc) {
                 // Returning the Block is not valid
-                reject(Error(self))
+                return resolve(false)
             } else {
                 // Returning the Block is valid
-                resolve(self)
+                return resolve(true)
             }
-
-
         });
     }
 
