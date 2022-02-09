@@ -222,20 +222,26 @@ class Blockchain {
             //         errorLog.push(currentBlock.hash)
             //     }                
             // }
-            self.chain.forEach(async block => {
-                // try {
-                //    const blockResult = await block.validate()
-                   
-                // } catch (e) {
-                //     errorLog.push(e)
-                // }
+            self.chain.forEach(async (block, index) => {
                 const blockResult = await block.validate()
-                if(!blockResult) errorLog.push(block)
+
+                // check with prev block
+                let matchesWithPrevBlock = true
+                // if not genesis block, check with previousBlackHash
+                if(index !== 0){
+                    const prevBlock = self.chain[index-1]  
+                    if(prevBlock.hash !== block.previousBlockHash){
+                        matchesWithPrevBlock = false 
+                    }
+                }
+
+                if(!blockResult || !matchesWithPrevBlock) errorLog.push(block)
             })
 
             resolve(errorLog)
         });
     }
+
     getBlockHeight(hash) {
         let self = this; 
         console.log('hash',hash)
